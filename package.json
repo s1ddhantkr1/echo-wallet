@@ -1,0 +1,250 @@
+{
+  "name": "echo-wallet",
+  "author": {
+    "name": "PixelPlex, Inc.",
+    "email": "info@pixelplex.io",
+    "url": "https://pixelplex.io"
+  },
+  "description": "Echo Wallet: Cryptocurrency wallet for Echo platform",
+  "homepage": "https://github.com/echoprotocol/echo-wallet",
+  "version": "1.13.0",
+  "license": "MIT",
+  "main": "build/electron/index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=local node --trace-warnings -r @babel/register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack-configs/webpack.config.web.babel.js --mode development --progress --colors --history-api-fallback --hot --inline",
+    "prebuild": "rm -rf build/",
+    "preinstall": "npx npm-force-resolutions",
+    "build-web": "cross-env NODE_ENV=production webpack --config webpack-configs/webpack.config.web.babel.js ---display-error-details --colors --mode production",
+    "build": "cross-env ELECTRON=TRUE NODE_ENV=production webpack --config webpack-configs/webpack.config.web.babel.js --env.prod --env.electron --env.hash",
+    "build-main": "cross-env NODE_ENV=production webpack --config ./webpack-configs/webpack.config.main.babel.js --colors",
+    "lint": "node_modules/.bin/eslint 'src/**/*.jsx' 'src/**/*.js'",
+    "package": "build -p never --linux deb",
+    "package-win": "npm run build && build -p never --windows",
+    "package-deb": "npm run build && build -p never --linux deb",
+    "package-mac": "npm run build && build -p never --mac dmg",
+    "package-deb-with-download-build": "npm run download-linux-build && npm run package-deb",
+    "package-mac-with-download-build": "npm run download-mac-build && npm run package-mac",
+    "download-linux-build": "DOWNLOAD_ECHO_NODE_OS=linux node -r @babel/register ./scripts/DownloadBuild.js",
+    "download-mac-build": "DOWNLOAD_ECHO_NODE_OS=mac node -r @babel/register ./scripts/DownloadBuild.js",
+    "postbuild": "npm run prepare-electron && npm run build-main",
+    "prepare-electron": "copyfiles -f src/assets/app_resources/preload.js build/electron/",
+    "build-electron-debug": "cross-env ELECTRON=TRUE NODE_ENV=production webpack --env.prod --env.electron --env.hash",
+    "postbuild-electron-debug": "copyfiles -f src/assets/app_resources/preload.js build/electron/ && mv build/electron/debug.js build/electron/index.js",
+    "package-win-debug": "npm run build-electron-debug && electron-builder build -p never --windows",
+    "package-deb-debug": "npm run build-debug && electron-builder build -p never --linux deb"
+  },
+  "dependencies": {
+    "ace-builds": "^1.4.7",
+    "autoprefixer": "^8.1.0",
+    "babel-polyfill": "^6.26.0",
+    "bignumber.js": "^7.2.1",
+    "bitcoin-address-validation": "^1.0.0",
+    "bn.js": "^4.11.8",
+    "bs58": "^4.0.1",
+    "bufferutil": "^4.0.1",
+    "classnames": "^2.2.6",
+    "config": "^3.2.4",
+    "crypto-random-string": "^3.0.1",
+    "echojs-lib": "^1.13.2",
+    "echojs-ping": "^0.1.5",
+    "electron-context-menu": "^0.10.0",
+    "electron-winstaller": "^2.7.0",
+    "file-loader": "^1.1.11",
+    "get-port": "^5.0.0",
+    "history": "^4.7.2",
+    "idb": "^4.0.4",
+    "immutable": "^3.8.2",
+    "isomorphic-fetch": "^3.0.0",
+    "js-sha3": "^0.7.0",
+    "lodash": "^4.17.11",
+    "mini-css-extract-plugin": "^0.7.0",
+    "moment": "^2.22.2",
+    "node-notifier": "^5.4.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "prop-types": "^15.6.1",
+    "qrcode.react": "^1.0.0",
+    "qs": "^6.9.1",
+    "query-string": "^6.1.0",
+    "react": "^16.5.2",
+    "react-ace": "^8.0.0",
+    "react-circular-progressbar": "^2.0.3",
+    "react-copy-to-clipboard": "^5.0.1",
+    "react-countdown-now": "^2.1.1",
+    "react-dom": "^16.5.2",
+    "react-focus-lock": "^2.2.1",
+    "react-hot-loader": "^4.3.10",
+    "react-intl": "^3.9.1",
+    "react-lottie": "^1.2.3",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "react-router-redux": "^5.0.0-alpha.9",
+    "react-scroll": "^1.7.10",
+    "react-toastify": "^4.3.2",
+    "react-transition-group": "^4.3.0",
+    "redux": "^3.7.2",
+    "redux-modules": "^1.1.1",
+    "redux-thunk": "^2.3.0",
+    "ripemd160": "^2.0.2",
+    "rlp": "^2.1.0",
+    "rxjs": "^6.5.3",
+    "scrypt-js": "^2.0.4",
+    "semantic-ui-react": "^0.88.2",
+    "solc": "^0.5.12",
+    "terser-webpack-plugin": "^1.3.0",
+    "uglifyjs-webpack-plugin": "^1.3.0",
+    "utf-8-validate": "^5.0.2",
+    "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/plugin-proposal-decorators": "^7.2.3",
+    "@babel/plugin-proposal-do-expressions": "^7.2.0",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-proposal-function-bind": "^7.2.0",
+    "@babel/plugin-proposal-function-sent": "^7.2.0",
+    "@babel/plugin-proposal-json-strings": "^7.2.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.2.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.2.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.2.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/plugin-transform-react-constant-elements": "^7.2.0",
+    "@babel/plugin-transform-react-inline-elements": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "app-root-dir": "^1.0.2",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^26.6.3",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-dev-expression": "^0.2.1",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.21",
+    "babel-preset-env": "^1.7.0",
+    "chalk": "^2.4.1",
+    "clean-webpack-plugin": "^0.1.19",
+    "concurrently": "^5.3.0",
+    "copy-webpack-plugin": "^6.3.0",
+    "copyfiles": "^2.1.0",
+    "cross-env": "^5.1.4",
+    "cross-spawn": "^6.0.5",
+    "css-loader": "^1.0.1",
+    "detect-port": "^1.3.0",
+    "download": "^7.1.0",
+    "electron": "^2.0.17",
+    "electron-builder": "^20.28.4",
+    "eslint": "^4.18.2",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "7.14.3",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "git-revision-webpack-plugin": "^3.0.4",
+    "html-webpack-plugin": "^3.0.4",
+    "img-loader": "^3.0.1",
+    "node-sass": "^4.9.3",
+    "rimraf": "^2.6.3",
+    "sass-loader": "^6.0.7",
+    "style-loader": "^0.20.2",
+    "tar": "^4.4.10",
+    "url-loader": "^1.1.1",
+    "webpack": "^4.20.2",
+    "webpack-bundle-analyzer": "^3.0.3",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-middleware": "^3.4.0",
+    "webpack-dev-server": "^3.1.9",
+    "webpack-merge": "^4.1.5"
+  },
+  "resolutions": {
+    "serialize-javascript": "3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/echoprotocol/echo-wallet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/echoprotocol/echo-wallet/issues"
+  },
+  "build": {
+    "productName": "Echo Wallet",
+    "appId": "org.echo",
+    "extraFiles": [
+      {
+        "from": "resources/${os}/bin",
+        "to": "resources/bin",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/icons",
+        "to": "resources/icons",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      "*.js",
+      "build",
+      "node_modules",
+      "build/electron/index.js",
+      "build/electron/index.js.map"
+    ],
+    "directories": {
+      "buildResources": "resources/icons",
+      "output": "build/binaries"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "deleteAppDataOnUninstall": true,
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false
+    },
+    "linux": {
+      "category": "Finance",
+      "target": [
+        "deb"
+      ],
+      "executableName": "Echo Wallet",
+      "desktop": "Echo Wallet",
+      "synopsis": "Echo Wallet: Cryptocurrency wallet for Echo platform"
+    },
+    "deb": {
+      "afterRemove": "scripts/linux-package.after-remove.sh"
+    }
+  }
+}

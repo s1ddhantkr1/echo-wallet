@@ -1,0 +1,51 @@
+stages:
+  - test
+  - build
+  - deploy
+
+test:
+  image: node:10
+  stage: test
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - npm i
+    - npm run lint
+  tags:
+    - docker
+  only:
+    - merge_requests
+
+build:
+  stage: build
+  variables:
+    NODE_APP_INSTANCE: $CI_COMMIT_REF_NAME
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --build-arg CRYPTO_API_KEY=${CRYPTO_API_KEY} .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    - master
+    - develop
+  tags:
+    - echo-linux
+
+
+deploy:
+  stage: deploy
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - if [ "$CI_COMMIT_REF_NAME" != "master" ]; then export PORT=36450; fi
+  variables:
+    CI_FULL_REGISTRY: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    PORT: 26450
+  script:
+    - docker-compose -p $CI_COMMIT_REF_NAME up -d
+  only:
+    - develop
+    - master
+  tags:
+    - echo-linux
